@@ -439,36 +439,38 @@ def tests():
         print('nothing in stderr: """%s"""' % s.stderr.read())
 
     def test_tee():
-        logfile = file("/tmp/log", "w")
+        with open('/tmp/log', 'w') as fob:
 
-        trap = StdTrap(transparent=True, stdout_tee=logfile)
-        try:
-            os.system("echo hello world")
-            for i in range(10):
-                print(i)
-        finally:
-            trap.close()
+            trap = StdTrap(transparent=True, stdout_tee=fob)
+            try:
+                os.system("echo hello world")
+                for i in range(10):
+                    print(i)
+            finally:
+                trap.close()
 
-        trapped_output = trap.stdout.read()
-        logfile.close()
+            trapped_output = trap.stdout.read()
+            logfile.close()
 
-        assert file("/tmp/log").read() == trapped_output
+        with open('/tmp/log', 'r') as fob:
+            assert fob.read() == trapped_output
 
     def test_united_tee():
-        logfile = file("/tmp/log", "w")
+        with open('/tmp/log', 'w') as fob:
 
-        trap = UnitedStdTrap(transparent=True, tee=logfile)
-        try:
-            os.system("echo hello world")
-            for i in range(10):
-                print(i)
-        finally:
-            trap.close()
+            trap = UnitedStdTrap(transparent=True, tee=fob)
+            try:
+                os.system("echo hello world")
+                for i in range(10):
+                    print(i)
+            finally:
+                trap.close()
 
-        trapped_output = trap.std.read()
-        logfile.close()
+            trapped_output = trap.std.read()
+            logfile.close()
 
-        assert file("/tmp/log").read() == trapped_output
+        with open('/tmp/log', 'r') as fob:
+            assert fob.read() == trapped_output
 
     test(False)
     print()
@@ -543,7 +545,7 @@ def main():
         output_fh = p.stdin
 
     else:
-        output_fh = file(output, 'w')
+        output_fh = open(output, 'w')
     
     command = args if args else [ os.environ.get('SHELL', '/bin/bash') ]
     trap = UnitedStdTrap(usepty=opt_pty, transparent=not opt_quiet, tee=output_fh)
